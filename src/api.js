@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "http://15.134.135.202:3000",
+  baseURL: "http://approval-subsection-farms-gifts.trycloudflare.com",
 });
 
 export default api;
