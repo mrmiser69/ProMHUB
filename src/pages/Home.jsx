@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import api from "../api";
 import Header from "../components/Header";
+import { getTelegramUserId } from "../utils/telegram";
 
 function Home() {
   const [user, setUser] = useState(null);
   const [loadingBonus, setLoadingBonus] = useState(false);
+  const userId = getTelegramUserId();
 
   useEffect(() => {
     loadUser();
@@ -12,7 +14,7 @@ function Home() {
 
   async function loadUser() {
     try {
-      const res = await api.get("/user/12345");
+      const res = await api.get(`/user/${userId}`);
 
       if (res.data.success) {
         setUser(res.data.user[0]);
@@ -26,7 +28,7 @@ function Home() {
     try {
       setLoadingBonus(true);
 
-      const res = await api.post("/daily-bonus/12345");
+      const res = await api.post(`/daily-bonus/${userId}`);
 
       if (res.data.success) {
         alert(`🎉 You received ${res.data.reward} coins`);

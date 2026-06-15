@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import api from "../api";
+import { getTelegramUserId } from "../utils/telegram";
 
 function Earn() {
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [claiming, setClaiming] = useState(null);
+  const userId = getTelegramUserId();
 
   useEffect(() => {
     loadTasks();
@@ -13,7 +15,7 @@ function Earn() {
   async function loadTasks() {
     try {
       const res = await api.get(
-        "/promotions?user_id=12345"
+        `/promotions?user_id=${userId}`
       );
 
       if (res.data.success) {
@@ -37,7 +39,7 @@ function Earn() {
       const res = await api.post(
         "/claim-reward",
         {
-          user_id: 12345,
+          user_id: userId,
           promotion_id: promotionId
         }
       );

@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import api from "../api";
+import { getTelegramUserId } from "../utils/telegram";
 
 function Friends() {
   const [referral, setReferral] = useState(null);
+  const userId = getTelegramUserId();
 
   useEffect(() => {
     loadReferral();
@@ -10,7 +12,7 @@ function Friends() {
 
   async function loadReferral() {
     try {
-      const res = await api.get("/referral/12345");
+      const res = await api.get(`/referral/${userId}`);
 
       if (res.data.success) {
         setReferral(res.data);

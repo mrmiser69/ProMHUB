@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../api";
+import { getTelegramUserId } from "../utils/telegram";
 
 function Profile() {
   const [user, setUser] = useState(null);
+  const userId = getTelegramUserId();
 
   const navigate = useNavigate();
 
@@ -13,7 +15,7 @@ function Profile() {
 
   async function loadUser() {
     try {
-      const res = await api.get("/user/12345");
+      const res = await api.get(`/user/${userId}`);
 
       if (res.data.success) {
         setUser(res.data.user[0]);

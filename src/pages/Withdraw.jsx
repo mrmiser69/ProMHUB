@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import api from "../api";
+import { getTelegramUserId } from "../utils/telegram";
 
 function Withdraw() {
   const [user, setUser] = useState(null);
@@ -8,6 +9,7 @@ function Withdraw() {
   const [method, setMethod] = useState("USDT");
   const [account, setAccount] = useState("");
   const [amount, setAmount] = useState("");
+  const userId = getTelegramUserId();
 
   const [loading, setLoading] = useState(false);
 
@@ -18,7 +20,7 @@ function Withdraw() {
 
   async function loadUser() {
     try {
-      const res = await api.get("/user/12345");
+      const res = await api.get(`/user/${userId}`);
 
       if (res.data.success) {
         setUser(res.data.user[0]);
@@ -31,7 +33,7 @@ function Withdraw() {
   async function loadHistory() {
     try {
       const res = await api.get(
-        "/withdraw-history/12345"
+        `/withdraw-history/${userId}`
       );
 
       if (res.data.success) {
@@ -52,7 +54,7 @@ function Withdraw() {
       setLoading(true);
 
       const res = await api.post("/withdraw", {
-        user_id: 12345,
+        user_id: userId,
         method,
         wallet_address: account,
         amount: Number(amount)

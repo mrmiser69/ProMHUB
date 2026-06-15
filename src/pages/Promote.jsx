@@ -1,11 +1,13 @@
 import { useState } from "react";
 import api from "../api";
+import { getTelegramUserId } from "../utils/telegram";
 
 function Promote() {
   const [link, setLink] = useState("");
   const [reward, setReward] = useState("");
   const [joins, setJoins] = useState("");
   const [loading, setLoading] = useState(false);
+  const userId = getTelegramUserId();
 
   const totalCost =
     Number(reward || 0) * Number(joins || 0);
@@ -20,7 +22,7 @@ function Promote() {
       setLoading(true);
 
       const res = await api.post("/promotions", {
-        owner_id: 12345,
+        owner_id: userId,
         title: "Telegram Promotion",
         target_link: link,
         reward: Number(reward),
