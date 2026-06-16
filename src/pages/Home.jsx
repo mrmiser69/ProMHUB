@@ -6,6 +6,7 @@ import { getTelegramUserId } from "../utils/telegram";
 function Home() {
   const [user, setUser] = useState(null);
   const [loadingBonus, setLoadingBonus] = useState(false);
+
   const userId = getTelegramUserId();
 
   useEffect(() => {
@@ -32,7 +33,6 @@ function Home() {
 
       if (res.data.success) {
         alert(`🎉 You received ${res.data.reward} coins`);
-
         await loadUser();
       } else {
         alert(res.data.error);
@@ -55,14 +55,17 @@ function Home() {
       <Header />
 
       <div className="p-5">
-        {/* Coin Balance */}
-        <h2 className="text-[#F5C542] text-6xl font-bold mt-6">
-          {Number(user?.coin ?? 0).toLocaleString()}
-        </h2>
 
-        <p className="text-[#F5C542] text-2xl font-semibold">
-          COINS
-        </p>
+        {/* Coin Balance */}
+        <div className="mt-6 flex items-end gap-3">
+          <h2 className="text-[#F5C542] text-6xl font-bold">
+            {Number(user?.coin ?? 0).toLocaleString()}
+          </h2>
+
+          <span className="text-[#F5C542] text-2xl font-semibold mb-2">
+            Coins
+          </span>
+        </div>
 
         {/* Daily Bonus */}
         <div className="mt-8 bg-[#F5C542] rounded-3xl p-6">
@@ -88,28 +91,53 @@ function Home() {
         </div>
 
         {/* Featured Task */}
-        <div className="mt-8 bg-[#131C2E] rounded-3xl p-5 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className="w-16 h-16 rounded-full bg-gray-400"></div>
+        <div className="mt-8">
+          <h2 className="text-white text-xl font-bold mb-4">
+            Featured Tasks
+          </h2>
 
-            <div>
-              <h3 className="text-[#F5C542] text-xl font-bold">
-                MM Telegram Bots
-              </h3>
+          <div className="bg-[#131C2E] rounded-3xl p-5">
 
-              <p className="text-gray-300">
-                Join channel to earn
-              </p>
+            <div className="flex items-center justify-between">
+
+              <div className="flex items-center gap-4">
+
+                <div className="w-16 h-16 rounded-full bg-gray-500"></div>
+
+                <div>
+                  <h3 className="text-[#F5C542] text-xl font-bold">
+                    MM Telegram Bots
+                  </h3>
+
+                  <p className="text-gray-300 text-sm">
+                    Join channel to earn
+                  </p>
+                </div>
+
+              </div>
+
+              <div className="text-right">
+
+                <p className="text-[#F5C542] text-2xl font-bold">
+                  +100
+                </p>
+
+                <button
+                  className="mt-2 bg-[#F5C542] text-black px-4 py-2 rounded-xl font-bold"
+                >
+                  Join
+                </button>
+
+              </div>
+
             </div>
-          </div>
 
-          <span className="text-[#F5C542] text-3xl font-bold">
-            +100
-          </span>
+          </div>
         </div>
 
         {/* Video Ads + Invite Friends */}
         <div className="grid grid-cols-2 gap-4 mt-6">
+
           <div className="bg-[#131C2E] rounded-3xl p-5">
             <h3 className="text-[#F5C542] text-xl font-bold">
               Video Ads
@@ -129,7 +157,9 @@ function Home() {
               Invite & Earn
             </p>
           </div>
+
         </div>
+
       </div>
     </div>
   );
