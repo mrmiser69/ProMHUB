@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "https://approval-subsection-farms-gifts.trycloudflare.com",
+  baseURL: "https://promohub.duckdns.org",
 });
 
 export default api;
