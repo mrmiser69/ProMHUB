@@ -4,7 +4,11 @@ import { getTelegramUserId } from "../utils/telegram";
 
 function Friends() {
   const [referral, setReferral] = useState(null);
+
   const userId = getTelegramUserId();
+
+  const inviteLink =
+    `https://t.me/PromoHubV10_bot?start=${userId}`;
 
   useEffect(() => {
     loadReferral();
@@ -22,12 +26,14 @@ function Friends() {
     }
   }
 
-  async function copyCode() {
-    await navigator.clipboard.writeText(
-      referral?.referral_code || ""
-    );
-
-    alert("✅ Referral Code Copied");
+  async function copyLink() {
+    try {
+      await navigator.clipboard.writeText(inviteLink);
+      alert("✅ Invite Link Copied");
+    } catch (err) {
+      console.error(err);
+      alert("Failed to copy link");
+    }
   }
 
   return (
@@ -60,18 +66,18 @@ function Friends() {
       <div className="mt-5 bg-[#131C2E] rounded-3xl p-5">
 
         <p className="text-gray-400">
-          Your Referral Code
+          Your Invite Link
         </p>
 
-        <h2 className="text-4xl font-bold text-white mt-2">
-          {referral?.referral_code || "-"}
-        </h2>
+        <div className="mt-3 p-3 bg-[#0B1220] rounded-xl break-all text-white text-sm">
+          {inviteLink}
+        </div>
 
         <button
-          onClick={copyCode}
+          onClick={copyLink}
           className="w-full mt-4 bg-[#F5C542] text-black py-3 rounded-2xl font-bold"
         >
-          Copy Code
+          Copy Invite Link
         </button>
 
       </div>
