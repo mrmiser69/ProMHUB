@@ -10,8 +10,31 @@ function Home() {
   const userId = getTelegramUserId();
 
   useEffect(() => {
-    loadUser();
+    registerUser();
   }, []);
+
+  async function registerUser() {
+    try {
+      const tgUser =
+        window.Telegram?.WebApp?.initDataUnsafe?.user;
+
+      if (!tgUser) {
+        console.log("Telegram user not found");
+        return;
+      }
+
+      await api.post("/auth", {
+        id: tgUser.id,
+        username: tgUser.username || "",
+        first_name: tgUser.first_name || "",
+      });
+
+      await loadUser();
+
+    } catch (err) {
+      console.error("Register Error:", err);
+    }
+  }
 
   async function loadUser() {
     try {
