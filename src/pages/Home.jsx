@@ -118,6 +118,35 @@ function Home() {
     }
   }
 
+  async function handleVerify(task) {
+    try {
+      const res = await api.post(
+        "/verify-task",
+        {
+          user_id: userId,
+          task_id: task.id,
+        }
+      );
+
+      if (res.data.success) {
+        await handleClaim(task);
+      } else {
+        alert(
+          res.data.error ||
+          "You haven't joined yet"
+        );
+      }
+
+    } catch (err) {
+      console.error(err);
+
+      alert(
+        err.response?.data?.error ||
+        "Verification failed"
+      );
+    }
+  }
+
   async function handleClaim(task) {
     try {
       const res = await api.post(
@@ -287,11 +316,11 @@ function Home() {
                       ] === "claim" ? (
                       <button
                         onClick={() =>
-                          handleClaim(task)
+                          handleVerify(task)
                         }
                         className="mt-2 bg-blue-500 text-white px-4 py-2 rounded-xl font-bold"
                       >
-                        Claim
+                        Verify
                       </button>
                     ) : (
                       <button
