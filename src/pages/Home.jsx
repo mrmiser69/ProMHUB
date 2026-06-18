@@ -6,6 +6,7 @@ import { getTelegramUserId } from "../utils/telegram";
 function Home() {
   const [user, setUser] = useState(null);
   const [tasks, setTasks] = useState([]);
+  const [taskStatus, setTaskStatus] = useState({});
   const [loadingBonus, setLoadingBonus] = useState(false);
 
   const userId = getTelegramUserId();
@@ -21,7 +22,6 @@ function Home() {
         window.Telegram?.WebApp?.initDataUnsafe?.user;
 
       if (!tgUser) {
-        console.log("Telegram user not found");
         return;
       }
 
@@ -33,7 +33,7 @@ function Home() {
 
       await loadUser();
     } catch (err) {
-      console.error("Register Error:", err);
+      console.error(err);
     }
   }
 
@@ -45,7 +45,7 @@ function Home() {
         setUser(res.data.user[0]);
       }
     } catch (err) {
-      console.error("Load User Error:", err);
+      console.error(err);
     }
   }
 
@@ -57,7 +57,60 @@ function Home() {
         setTasks(res.data.tasks);
       }
     } catch (err) {
-      console.error("Featured Task Error:", err);
+      console.error(err);
+    }
+  }
+
+  async function handleJoin(task) {
+    try {
+      await api.post("/task-status/join", {
+        user_id: userId,
+        task_id: task.id,
+      });
+
+      window.open(
+        task.telegram_link,
+        "_blank"
+      );
+
+      setTaskStatus((prev) => ({
+        ...prev,
+        [task.id]: "claim",
+      }));
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  async function handleClaim(task) {
+    try {
+      const res = await api.post(
+        "/claim-task",
+        {
+          user_id: userId,
+          task_id: task.id,
+        }
+      );
+
+      if (res.data.success) {
+        alert(
+          `🎉 +${res.data.reward} Coins`
+        );
+
+        await loadUser();
+
+        setTaskStatus((prev) => ({
+          ...prev,
+          [task.id]: "claimed",
+        }));
+      }
+    } catch (err) {
+      console.error(err);
+
+      alert(
+        err.response?.data?.error ||
+        "Claim failed"
+      );
     }
   }
 
@@ -71,21 +124,18 @@ function Home() {
 
       if (res.data.success) {
         alert(
-          `🎉 You received ${res.data.reward} coins`
+          `🎉 You received ${res.data.reward} Coins`
         );
 
         await loadUser();
-      } else {
-        alert(res.data.error);
       }
     } catch (err) {
       console.error(err);
 
-      if (err.response?.data?.error) {
-        alert(err.response.data.error);
-      } else {
-        alert("Failed to claim daily bonus");
-      }
+      alert(
+        err.response?.data?.error ||
+        "Failed to claim daily bonus"
+      );
     } finally {
       setLoadingBonus(false);
     }
@@ -122,14 +172,14 @@ function Home() {
               </h3>
 
               <p className="text-[#0B1220] mt-2">
-                Claim 50 Coin
+                Claim 50 Coins
               </p>
             </div>
 
             <button
               onClick={handleDailyBonus}
               disabled={loadingBonus}
-              className="bg-[#0B1220] text-[#F5C542] px-6 py-4 rounded-2xl font-bold disabled:opacity-50"
+              className="bg-[#0B1220] text-[#F5C542] px-6 py-4 rounded-2xl font-bold"
             >
               {loadingBonus
                 ? "Loading..."
@@ -161,7 +211,14 @@ function Home() {
 
                   <div className="flex items-center gap-4">
 
-                    <div className="w-16 h-16 rounded-full bg-gray-500"></div>
+                    <img
+                      src={
+                        task.photo_url ||
+                        "https://placehold.co/100"
+                      }
+                      alt={task.title}
+                      className="w-16 h-16 rounded-full object-cover"
+                    />
 
                     <div>
                       <h3 className="text-[#F5C542] text-xl font-bold">
@@ -181,17 +238,35 @@ function Home() {
                       +{task.reward}
                     </p>
 
-                    <button
-                      onClick={() =>
-                        window.open(
-                          task.telegram_link,
-                          "_blank"
-                        )
-                      }
-                      className="mt-2 bg-[#F5C542] text-black px-4 py-2 rounded-xl font-bold"
-                    >
-                      Join
-                    </button>
+                    {taskStatus[task.id] ===
+                    "claimed" ? (
+                      <button
+                        disabled
+                        className="mt-2 bg-green-500 text-white px-4 py-2 rounded-xl font-bold"
+                      >
+                        Claimed
+                      </button>
+                    ) : taskStatus[
+                        task.id
+                      ] === "claim" ? (
+                      <button
+                        onClick={() =>
+                          handleClaim(task)
+                        }
+                        className="mt-2 bg-blue-500 text-white px-4 py-2 rounded-xl font-bold"
+                      >
+                        Claim
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() =>
+                          handleJoin(task)
+                        }
+                        className="mt-2 bg-[#F5C542] text-black px-4 py-2 rounded-xl font-bold"
+                      >
+                        Join
+                      </button>
+                    )}
 
                   </div>
 
