@@ -5,12 +5,14 @@ import { getTelegramUserId } from "../utils/telegram";
 
 function Home() {
   const [user, setUser] = useState(null);
+  const [tasks, setTasks] = useState([]);
   const [loadingBonus, setLoadingBonus] = useState(false);
 
   const userId = getTelegramUserId();
 
   useEffect(() => {
     registerUser();
+    loadFeaturedTasks();
   }, []);
 
   async function registerUser() {
@@ -18,22 +20,16 @@ function Home() {
       const tgUser =
         window.Telegram?.WebApp?.initDataUnsafe?.user;
 
-      console.log("Telegram User:", tgUser);
-      console.log("Telegram User ID:", tgUser?.id);
-      console.log("getTelegramUserId():", userId);
-
       if (!tgUser) {
         console.log("Telegram user not found");
         return;
       }
 
-      const authRes = await api.post("/auth", {
+      await api.post("/auth", {
         id: tgUser.id,
         username: tgUser.username || "",
         first_name: tgUser.first_name || "",
       });
-
-      console.log("Auth Response:", authRes.data);
 
       await loadUser();
     } catch (err) {
@@ -43,11 +39,7 @@ function Home() {
 
   async function loadUser() {
     try {
-      console.log("Loading user:", userId);
-
       const res = await api.get(`/user/${userId}`);
-
-      console.log("User Response:", res.data);
 
       if (res.data.success) {
         setUser(res.data.user[0]);
@@ -57,14 +49,31 @@ function Home() {
     }
   }
 
+  async function loadFeaturedTasks() {
+    try {
+      const res = await api.get("/featured-tasks");
+
+      if (res.data.success) {
+        setTasks(res.data.tasks);
+      }
+    } catch (err) {
+      console.error("Featured Task Error:", err);
+    }
+  }
+
   async function handleDailyBonus() {
     try {
       setLoadingBonus(true);
 
-      const res = await api.post(`/daily-bonus/${userId}`);
+      const res = await api.post(
+        `/daily-bonus/${userId}`
+      );
 
       if (res.data.success) {
-        alert(`🎉 You received ${res.data.reward} coins`);
+        alert(
+          `🎉 You received ${res.data.reward} coins`
+        );
+
         await loadUser();
       } else {
         alert(res.data.error);
@@ -88,9 +97,13 @@ function Home() {
 
       <div className="p-5">
 
+        {/* Coin Balance */}
+
         <div className="mt-6 flex items-end gap-3">
           <h2 className="text-[#F5C542] text-6xl font-bold">
-            {Number(user?.coin ?? 0).toLocaleString()}
+            {Number(
+              user?.coin ?? 0
+            ).toLocaleString()}
           </h2>
 
           <span className="text-[#F5C542] text-2xl font-semibold mb-2">
@@ -98,8 +111,11 @@ function Home() {
           </span>
         </div>
 
+        {/* Daily Bonus */}
+
         <div className="mt-8 bg-[#F5C542] rounded-3xl p-6">
           <div className="flex justify-between items-center">
+
             <div>
               <h3 className="text-[#0B1220] text-3xl font-bold">
                 Daily Bonus
@@ -115,48 +131,78 @@ function Home() {
               disabled={loadingBonus}
               className="bg-[#0B1220] text-[#F5C542] px-6 py-4 rounded-2xl font-bold disabled:opacity-50"
             >
-              {loadingBonus ? "Loading..." : "Claim"}
+              {loadingBonus
+                ? "Loading..."
+                : "Claim"}
             </button>
+
           </div>
         </div>
 
+        {/* Featured Tasks */}
+
         <div className="mt-8">
+
           <h2 className="text-white text-xl font-bold mb-4">
             Featured Tasks
           </h2>
 
-          <div className="bg-[#131C2E] rounded-3xl p-5">
-            <div className="flex items-center justify-between">
+          {tasks.length === 0 ? (
+            <div className="bg-[#131C2E] rounded-3xl p-5 text-gray-400">
+              No Featured Tasks
+            </div>
+          ) : (
+            tasks.map((task) => (
+              <div
+                key={task.id}
+                className="bg-[#131C2E] rounded-3xl p-5 mb-4"
+              >
+                <div className="flex items-center justify-between">
 
-              <div className="flex items-center gap-4">
-                <div className="w-16 h-16 rounded-full bg-gray-500"></div>
+                  <div className="flex items-center gap-4">
 
-                <div>
-                  <h3 className="text-[#F5C542] text-xl font-bold">
-                    MM Telegram Bots
-                  </h3>
+                    <div className="w-16 h-16 rounded-full bg-gray-500"></div>
 
-                  <p className="text-gray-300 text-sm">
-                    Join channel to earn
-                  </p>
+                    <div>
+                      <h3 className="text-[#F5C542] text-xl font-bold">
+                        {task.title}
+                      </h3>
+
+                      <p className="text-gray-300 text-sm">
+                        Join channel to earn
+                      </p>
+                    </div>
+
+                  </div>
+
+                  <div className="text-right">
+
+                    <p className="text-[#F5C542] text-2xl font-bold">
+                      +{task.reward}
+                    </p>
+
+                    <button
+                      onClick={() =>
+                        window.open(
+                          task.telegram_link,
+                          "_blank"
+                        )
+                      }
+                      className="mt-2 bg-[#F5C542] text-black px-4 py-2 rounded-xl font-bold"
+                    >
+                      Join
+                    </button>
+
+                  </div>
+
                 </div>
               </div>
+            ))
+          )}
 
-              <div className="text-right">
-                <p className="text-[#F5C542] text-2xl font-bold">
-                  +100
-                </p>
-
-                <button
-                  className="mt-2 bg-[#F5C542] text-black px-4 py-2 rounded-xl font-bold"
-                >
-                  Join
-                </button>
-              </div>
-
-            </div>
-          </div>
         </div>
+
+        {/* Bottom Cards */}
 
         <div className="grid grid-cols-2 gap-4 mt-6">
 
