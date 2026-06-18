@@ -55,7 +55,12 @@ function Home() {
 
       if (res.data.success) {
         setTasks(res.data.tasks);
+
+        await loadTaskStatus(
+          res.data.tasks
+        );
       }
+
     } catch (err) {
       console.error(err);
     }
@@ -83,6 +88,31 @@ function Home() {
         ...prev,
         [task.id]: "claim",
       }));
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  async function loadTaskStatus(tasksData) {
+    try {
+      const statusMap = {};
+
+      for (const task of tasksData) {
+        const res = await api.get(
+          `/task-status/${userId}/${task.id}`
+        );
+
+        if (res.data.claimed) {
+          statusMap[task.id] = "claimed";
+        } else if (res.data.joined) {
+          statusMap[task.id] = "claim";
+        } else {
+          statusMap[task.id] = "join";
+        }
+      }
+
+      setTaskStatus(statusMap);
+
     } catch (err) {
       console.error(err);
     }
