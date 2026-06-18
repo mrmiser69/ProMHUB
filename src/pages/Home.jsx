@@ -68,10 +68,16 @@ function Home() {
         task_id: task.id,
       });
 
-      window.open(
-        task.telegram_link,
-        "_blank"
-      );
+      if (window.Telegram?.WebApp) {
+        window.Telegram.WebApp.openTelegramLink(
+          task.telegram_link
+        );
+      } else {
+        window.open(
+          task.telegram_link,
+          "_blank"
+        );
+      }
 
       setTaskStatus((prev) => ({
         ...prev,
@@ -242,7 +248,7 @@ function Home() {
                     "claimed" ? (
                       <button
                         disabled
-                        className="mt-2 bg-green-500 text-white px-4 py-2 rounded-xl font-bold"
+                        className="mt-2 bg-gray-500 text-white px-4 py-2 rounded-xl font-bold cursor-not-allowed"
                       >
                         Claimed
                       </button>
