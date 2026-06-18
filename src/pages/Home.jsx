@@ -18,19 +18,24 @@ function Home() {
       const tgUser =
         window.Telegram?.WebApp?.initDataUnsafe?.user;
 
+      console.log("Telegram User:", tgUser);
+      console.log("Telegram User ID:", tgUser?.id);
+      console.log("getTelegramUserId():", userId);
+
       if (!tgUser) {
         console.log("Telegram user not found");
         return;
       }
 
-      await api.post("/auth", {
+      const authRes = await api.post("/auth", {
         id: tgUser.id,
         username: tgUser.username || "",
         first_name: tgUser.first_name || "",
       });
 
-      await loadUser();
+      console.log("Auth Response:", authRes.data);
 
+      await loadUser();
     } catch (err) {
       console.error("Register Error:", err);
     }
@@ -38,13 +43,17 @@ function Home() {
 
   async function loadUser() {
     try {
+      console.log("Loading user:", userId);
+
       const res = await api.get(`/user/${userId}`);
+
+      console.log("User Response:", res.data);
 
       if (res.data.success) {
         setUser(res.data.user[0]);
       }
     } catch (err) {
-      console.error(err);
+      console.error("Load User Error:", err);
     }
   }
 
@@ -79,7 +88,6 @@ function Home() {
 
       <div className="p-5">
 
-        {/* Coin Balance */}
         <div className="mt-6 flex items-end gap-3">
           <h2 className="text-[#F5C542] text-6xl font-bold">
             {Number(user?.coin ?? 0).toLocaleString()}
@@ -90,7 +98,6 @@ function Home() {
           </span>
         </div>
 
-        {/* Daily Bonus */}
         <div className="mt-8 bg-[#F5C542] rounded-3xl p-6">
           <div className="flex justify-between items-center">
             <div>
@@ -113,18 +120,15 @@ function Home() {
           </div>
         </div>
 
-        {/* Featured Task */}
         <div className="mt-8">
           <h2 className="text-white text-xl font-bold mb-4">
             Featured Tasks
           </h2>
 
           <div className="bg-[#131C2E] rounded-3xl p-5">
-
             <div className="flex items-center justify-between">
 
               <div className="flex items-center gap-4">
-
                 <div className="w-16 h-16 rounded-full bg-gray-500"></div>
 
                 <div>
@@ -136,11 +140,9 @@ function Home() {
                     Join channel to earn
                   </p>
                 </div>
-
               </div>
 
               <div className="text-right">
-
                 <p className="text-[#F5C542] text-2xl font-bold">
                   +100
                 </p>
@@ -150,15 +152,12 @@ function Home() {
                 >
                   Join
                 </button>
-
               </div>
 
             </div>
-
           </div>
         </div>
 
-        {/* Video Ads + Invite Friends */}
         <div className="grid grid-cols-2 gap-4 mt-6">
 
           <div className="bg-[#131C2E] rounded-3xl p-5">
