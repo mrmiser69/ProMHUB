@@ -84,10 +84,10 @@ function Home() {
         );
       }
 
-      setTaskStatus((prev) => ({
-        ...prev,
-        [task.id]: "claim",
-      }));
+      setTimeout(() => {
+        window.location.reload();
+      }, 3000);
+    
     } catch (err) {
       console.error(err);
     }
@@ -98,13 +98,27 @@ function Home() {
       const statusMap = {};
 
       for (const task of tasksData) {
-        const res = await api.get(
+        const statusRes = await api.get(
           `/task-status/${userId}/${task.id}`
         );
 
-        if (res.data.claimed) {
+        if (statusRes.data.claimed) {
           statusMap[task.id] = "claimed";
-        } else if (res.data.joined) {
+          continue;
+        }
+
+        const verifyRes = await api.post(
+          "/verify-task",
+          {
+            user_id: userId,
+            telegram_link: task.telegram_link,
+          }
+        );
+
+        if (
+          verifyRes.data.success &&
+          verifyRes.data.joined
+        ) {
           statusMap[task.id] = "claim";
         } else {
           statusMap[task.id] = "join";
@@ -112,38 +126,8 @@ function Home() {
       }
 
       setTaskStatus(statusMap);
-
     } catch (err) {
       console.error(err);
-    }
-  }
-
-  async function handleVerify(task) {
-    try {
-      const res = await api.post(
-        "/verify-task",
-        {
-          user_id: userId,
-          task_id: task.id,
-        }
-      );
-
-      if (res.data.success) {
-        await handleClaim(task);
-      } else {
-        alert(
-          res.data.error ||
-          "You haven't joined yet"
-        );
-      }
-
-    } catch (err) {
-      console.error(err);
-
-      alert(
-        err.response?.data?.error ||
-        "Verification failed"
-      );
     }
   }
 
@@ -316,11 +300,11 @@ function Home() {
                       ] === "claim" ? (
                       <button
                         onClick={() =>
-                          handleVerify(task)
+                          handleClaim(task)
                         }
                         className="mt-2 bg-blue-500 text-white px-4 py-2 rounded-xl font-bold"
                       >
-                        Verify
+                        Claim
                       </button>
                     ) : (
                       <button
