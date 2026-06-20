@@ -52,7 +52,7 @@ function Friends() {
     totalReferrals * 100;
 
   return (
-    <div className="min-h-screen bg-[#1D23A8] pb-24">
+    <div className="min-h-screen bg-[#0f1da1] pb-24">
 
       {/* Header */}
 
