@@ -2,12 +2,14 @@ import { useEffect, useState } from "react";
 import api from "../api";
 import Header from "../components/Header";
 import { getTelegramUserId } from "../utils/telegram";
+import SkeletonHome from "../components/SkeletonHome";
 
 function Home() {
   const [user, setUser] = useState(null);
   const [tasks, setTasks] = useState([]);
   const [taskStatus, setTaskStatus] = useState({});
   const [loadingBonus, setLoadingBonus] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const userId = getTelegramUserId();
 
@@ -51,19 +53,20 @@ function Home() {
 
   async function loadFeaturedTasks() {
     try {
-      
+
+      setLoading(true);
+
       const res = await api.get("/featured-tasks");
 
       if (res.data.success) {
         setTasks(res.data.tasks);
-
-        await loadTaskStatus(
-          res.data.tasks
-        );
+        await loadTaskStatus(res.data.tasks);
       }
 
     } catch (err) {
       console.error(err);
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -189,6 +192,10 @@ function Home() {
     } finally {
       setLoadingBonus(false);
     }
+  }
+
+  if (loading) {
+    return <SkeletonHome />;
   }
 
   return (
