@@ -2,14 +2,12 @@ import { useEffect, useState } from "react";
 import api from "../api";
 import Header from "../components/Header";
 import { getTelegramUserId } from "../utils/telegram";
-import PageLoader from "../components/PageLoader";
 
 function Home() {
   const [user, setUser] = useState(null);
   const [tasks, setTasks] = useState([]);
   const [taskStatus, setTaskStatus] = useState({});
   const [loadingBonus, setLoadingBonus] = useState(false);
-  const [loading, setLoading] = useState(true);
 
   const userId = getTelegramUserId();
 
@@ -53,7 +51,6 @@ function Home() {
 
   async function loadFeaturedTasks() {
     try {
-      setLoading(true);
       
       const res = await api.get("/featured-tasks");
 
@@ -67,8 +64,6 @@ function Home() {
 
     } catch (err) {
       console.error(err);
-    } finally {
-      setLoading(false);
     }
   }
 
@@ -197,10 +192,6 @@ function Home() {
   }
 
   return (
-    <>
-    
-    {loading && <PageLoader />}
-
     <div className="pb-28">
       <Header />
 
@@ -364,7 +355,6 @@ function Home() {
 
       </div>
     </div>
-  </>
   );
 }
 
